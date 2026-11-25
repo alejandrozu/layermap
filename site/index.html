@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Crackmap — layered world color map</title>
+<title>LayerMap, layered world color map</title>
 <style>
 :root{
   --bg:#f6f5f1; --ink:#1f2328; --muted:#6b7077; --line:#dcd9d1; --panel:#fffffff2;
@@ -293,7 +293,7 @@ body.sheet #menu .mh button{display:block}
 <body class="mode-crack">
 <div id="app">
 <header>
-  <div class="brand">Crack<span>map</span></div>
+  <div class="brand">Layer<span>Map</span></div>
   <nav id="modes">
     <button data-mode="crack" class="on" title="Crack mode (1)">Crack</button>
     <button data-mode="delete" title="Delete mode (2)">Delete</button>
@@ -1321,9 +1321,9 @@ function fetchTileBytes(L, k, ent) {
   if (R.ok === false || L.packs.has(key)) return viaPack();
   if (R.ok === null && R.probe) return R.probe.then(() => fetchTileBytes(L, k, ent));
   const pr = fetch(url, { headers: { Range: 'bytes=' + a + '-' + b } }).then(r => {
-    if (r.status === 206) { if (R.ok === null) console.info('[crackmap] range requests: yes', url.slice(0, 12)); R.ok = true; return r.arrayBuffer(); }
+    if (r.status === 206) { if (R.ok === null) console.info('[layermap] range requests: yes', url.slice(0, 12)); R.ok = true; return r.arrayBuffer(); }
     if (!r.ok) throw new Error(r.status);
-    if (R.ok === null) console.info('[crackmap] range requests: no', url.slice(0, 12));
+    if (R.ok === null) console.info('[layermap] range requests: no', url.slice(0, 12));
     R.ok = false;
     return r.arrayBuffer().then(buf => { // the host sent the whole pack: keep it for the next tiles
       if (!L.packs.has(key)) L.packs.set(key, { p: Promise.resolve(buf) });
@@ -2541,8 +2541,8 @@ $('#layersBtn').onclick = () => openLayers();
 $('#layersClose').onclick = () => openLayers(false);
 $('#openLayers').onclick = () => { if (narrowUI) setPanel(false); openLayers(true); };
 let uiPrefs = {};
-try { uiPrefs = JSON.parse(localStorage.getItem('crackmap.ui') || '{}'); } catch (e) { }
-function saveUI() { try { localStorage.setItem('crackmap.ui', JSON.stringify(uiPrefs)); } catch (e) { } }
+try { uiPrefs = JSON.parse(localStorage.getItem('layermap.ui') || localStorage.getItem('crackmap.ui') || '{}'); } catch (e) { }
+function saveUI() { try { localStorage.setItem('layermap.ui', JSON.stringify(uiPrefs)); } catch (e) { } }
 function setPanel(open, remember = true) {
   document.body.classList.toggle('panel-open', open);
   $('#backdrop').style.display = open && narrowUI ? 'block' : 'none';
@@ -2821,7 +2821,7 @@ async function renderPicture(o) {
   return oc;
 }
 function picName(o) {
-  return (legend.title && legend.title !== 'Legend' ? legend.title.replace(/[^\w\- ]+/g, '').trim() || 'crackmap' : (curMap && curMap.t ? curMap.t.replace(/[^\w\- ]+/g, '').trim() || 'crackmap' : 'crackmap'))
+  return (legend.title && legend.title !== 'Legend' ? legend.title.replace(/[^\w\- ]+/g, '').trim() || 'layermap' : (curMap && curMap.t ? curMap.t.replace(/[^\w\- ]+/g, '').trim() || 'layermap' : 'layermap'))
     + (o.whole ? '-world' : '') + (!o.names && !o.nums && !o.leg ? '-no-labels' : '') + '.png';
 }
 async function pictureDialog() {
@@ -2874,12 +2874,12 @@ $('#expPic').onclick = pictureDialog;
 
 /* ========================== save / load ========================== */
 function project() {
-  return { app: 'crackmap', v: 1, cracked: [...state.cracked], deleted: [...state.deleted], colors: Object.fromEntries(state.colors), combos: [...state.combos], renames: Object.fromEntries(state.renames), style: S, legend, palette, active, view: { ...view }, ...(curMap ? { fromMap: curMap } : {}) };
+  return { app: 'layermap', v: 1, cracked: [...state.cracked], deleted: [...state.deleted], colors: Object.fromEntries(state.colors), combos: [...state.combos], renames: Object.fromEntries(state.renames), style: S, legend, palette, active, view: { ...view }, ...(curMap ? { fromMap: curMap } : {}) };
 }
 let saveT;
-function scheduleSave() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem('crackmap.v1', JSON.stringify(project())); } catch (e) { } }, 400); }
+function scheduleSave() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem('layermap.v1', JSON.stringify(project())); } catch (e) { } }, 400); }
 async function applyProject(p) {
-  if (!p || p.app !== 'crackmap') throw new Error('Not a Crackmap file');
+  if (!p || !['layermap', 'crackmap'].includes(p.app)) throw new Error('Not a LayerMap file');
   // which country levels must be loaded
   const need = new Map();
   for (const id of p.cracked || []) {
@@ -2909,7 +2909,7 @@ async function applyProject(p) {
   bindStyle(); setActive(active); clampView(); recompute(); requestRender(true);
 }
 $('#saveProj').onclick = async () => {
-  const name = (legend.title && legend.title !== 'Legend' ? legend.title.replace(/[^\w\- ]+/g, '').trim() : curMap && curMap.t ? curMap.t.replace(/[^\w\- ]+/g, '').trim() : 'crackmap') + '.json';
+  const name = (legend.title && legend.title !== 'Legend' ? legend.title.replace(/[^\w\- ]+/g, '').trim() : curMap && curMap.t ? curMap.t.replace(/[^\w\- ]+/g, '').trim() : 'layermap') + '.json';
   const ok = await saveFile(name, JSON.stringify(project()));
   toast(ok ? 'Saved ' + name : 'Not saved');
 };
@@ -2948,8 +2948,8 @@ function b64ToBytes(b) { if (Uint8Array.fromBase64) return Uint8Array.fromBase64
 async function packMap(obj) { const st = new Blob([JSON.stringify(obj)]).stream().pipeThrough(new CompressionStream('gzip')); return bytesToB64(new Uint8Array(await new Response(st).arrayBuffer())); }
 async function unpackMap(z) { const st = new Blob([b64ToBytes(z)]).stream().pipeThrough(new DecompressionStream('gzip')); return JSON.parse(await new Response(st).text()); }
 const dbErr = e => e && e.code === 'quota_exceeded' ? 'The saved-maps storage is full: delete some saved maps first.'
-  : e && (e.code === 'invalid_argument' || e.code === 'not_granted') ? 'Your access to Crackmap lets you open saved maps but not save new ones. Ask its owner to make you a Contributor, or download the map file instead.'
-  : e && e.code === 'nodb' ? 'Saving links needs Crackmap to be open on claude.ai while you are signed in.'
+  : e && (e.code === 'invalid_argument' || e.code === 'not_granted') ? 'Your access to LayerMap lets you open saved maps but not save new ones. Ask its owner to make you a Contributor, or download the map file instead.'
+  : e && e.code === 'nodb' ? 'Saving links needs LayerMap to be open on claude.ai while you are signed in.'
   : 'Could not reach the saved-maps storage just now. Try again in a moment.';
 async function saveMapToCloud(title, updateId) {
   const db = await getDB(); if (!db) throw { code: 'nodb' };
@@ -2984,7 +2984,7 @@ async function openSavedMap(id) {
     toast('Opened “' + (r.meta.t || 'Saved map') + '” — change anything, then Save & share for your own link (Ctrl+Z brings back your previous map)', 5200);
   } catch (e) {
     setBusy(-1); console.error(e);
-    await modal(`<h2>Could not open that saved map</h2><p>${esc(e && e.code === 'nodb' ? 'Saved maps open when Crackmap runs on claude.ai and you are signed in, with access to Crackmap.' : e && e.code === 'partial' ? 'Part of this saved map is missing; it may be being updated right now. Try the link again in a moment.' : dbErr(e))}</p>`, [['OK', 0, 'primary']]);
+    await modal(`<h2>Could not open that saved map</h2><p>${esc(e && e.code === 'nodb' ? 'Saved maps open when LayerMap runs on claude.ai and you are signed in, with access to LayerMap.' : e && e.code === 'partial' ? 'Part of this saved map is missing; it may be being updated right now. Try the link again in a moment.' : dbErr(e))}</p>`, [['OK', 0, 'primary']]);
   }
 }
 // the link's #map-<id> is read once, then cleared, so reloading keeps the changes made since (they are saved on this device)
@@ -3028,7 +3028,7 @@ async function saveDialog() {
 async function shareDialog(id, title, how) {
   const me = await whoAmI(), link = mapLink(id);
   const subj = 'Map: ' + title;
-  const defMsg = `Here is a map I made with Crackmap: ${title}\n\nOpen it here: ${link}\n\nThe link opens the map exactly as it was saved. You can change it, save your own copy and download it as a picture.`;
+  const defMsg = `Here is a map I made with LayerMap: ${title}\n\nOpen it here: ${link}\n\nThe link opens the map exactly as it was saved. You can change it, save your own copy and download it as a picture.`;
   const done = modal(`<h2>${how === 'updated' ? 'Updated' : how === 'saved' ? 'Saved' : 'Share'} “${esc(title)}”</h2>
     <label class="fld" for="shLink">Link — opens this exact map</label>
     <div class="linkrow"><input class="inp" id="shLink" readonly><button class="btn" id="shCopy">Copy link</button></div>
@@ -3036,7 +3036,7 @@ async function shareDialog(id, title, how) {
     <label class="fld" for="shMsg">Message</label><textarea class="inp" id="shMsg"></textarea>
     <div class="mailbtns"><a class="btn primary" id="shGmail" target="_blank" rel="noopener">Write it in Gmail</a><a class="btn" id="shOutlook" target="_blank" rel="noopener">Outlook</a><a class="btn" id="shMailto">Other email app</a><button class="btn" id="shCopyMsg">Copy message</button><button class="btn" id="shPic">Picture to attach…</button></div>
     <p class="hint">These open your email with the message filled in — press Send there. If nothing opens, copy the message into any email.</p>
-    <p class="note${me.owner ? ' warn' : ''}">${me.owner ? 'Only people who can open Crackmap can open the link. To send it to others, share Crackmap from the <b>Share</b> button at the top of its page on claude.ai (people outside your organization need it shared by link, and must be signed in to claude.ai).' : 'The people you send it to need access to Crackmap on claude.ai to open the link.'}</p>`, [['Done', 0, 'primary']]);
+    <p class="note${me.owner ? ' warn' : ''}">${me.owner ? 'Only people who can open LayerMap can open the link. To send it to others, share LayerMap from the <b>Share</b> button at the top of its page on claude.ai (people outside your organization need it shared by link, and must be signed in to claude.ai).' : 'The people you send it to need access to LayerMap on claude.ai to open the link.'}</p>`, [['Done', 0, 'primary']]);
   $('#modal .box').classList.add('wide');
   $('#shLink').value = link; $('#shMsg').value = defMsg;
   const enc = encodeURIComponent;
@@ -3065,7 +3065,7 @@ let savedDocs = [], savedState = 'loading', meCache = { id: null, owner: false }
 async function renderSaved() {
   const box = $('#savedList'); if (!box) return;
   const my = ++savedTok;
-  if (savedState === 'none') { box.innerHTML = '<p class="hint">Saved maps and their links appear here when Crackmap runs on claude.ai and you are signed in.</p>'; return; }
+  if (savedState === 'none') { box.innerHTML = '<p class="hint">Saved maps and their links appear here when LayerMap runs on claude.ai and you are signed in.</p>'; return; }
   if (savedState === 'error') { box.innerHTML = '<p class="hint">Saved maps can’t be reached right now.</p>'; return; }
   if (savedState === 'loading') { box.innerHTML = '<p class="hint">Looking for saved maps…</p>'; return; }
   if (!savedDocs.length) { box.innerHTML = '<p class="hint">None yet. <b>Save &amp; share</b> keeps this map and gives you a link to send.</p>'; return; }
@@ -3127,7 +3127,7 @@ window.addEventListener('resize', () => {
   catch (e) { $('#loading').textContent = 'Could not load map data.'; console.error(e); return; }
   $('#loading').remove();
   buildQuick(); bindStyle(); setActive(active); renderPalette(); syncLayersUI(); syncPopUI();
-  let saved = null; try { saved = JSON.parse(localStorage.getItem('crackmap.v1') || 'null'); } catch (e) { }
+  let saved = null; try { saved = JSON.parse(localStorage.getItem('layermap.v1') || localStorage.getItem('crackmap.v1') || 'null'); } catch (e) { }
   if (saved) { try { await applyProject(saved); } catch (e) { recompute(); } } else recompute();
   if (saved && saved.fromMap) curMap = saved.fromMap;
   requestRender(true);

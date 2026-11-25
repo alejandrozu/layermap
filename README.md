@@ -1,9 +1,11 @@
-# layermap
+# LayerMap
 
 A layered world colour map in plate carrée projection. Start from the whole world and **crack** it into continents, countries, regions and subdivisions, going as fine as US census tracts. You can **delete** pieces or **combine** them, then **colour** and label the result. The map can sit on top of satellite, elevation and settlement layers.
 
-The live version runs as a claude.ai artifact and is still titled **Crackmap** there:
+The source now uses the **LayerMap** name. The existing hosted version runs as a claude.ai artifact and still uses its earlier **Crackmap** title until that artifact is updated:
 https://claude.ai/artifact/TsBBWPsStTmjYgDdZNHjHz
+
+LayerMap continues to open earlier Crackmap JSON files and recover existing local maps and preferences. New exports and browser saves use the LayerMap name.
 
 ## Features
 
