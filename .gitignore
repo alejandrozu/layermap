@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.DS_Store
+node_modules/
+# satellite zoom levels 7-10 live as artifact assets (~960 MB)
+s2assets/
