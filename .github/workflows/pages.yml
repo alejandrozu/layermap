@@ -23,8 +23,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # Pages refuses the full 600 MB site, so satellite level 8 stays out of the published copy
+      - name: Assemble the published site
+        run: |
+          cp -r site _site
+          rm -f _site/data/lay/sat2/p8_*.webp
+          du -sh _site
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
