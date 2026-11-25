@@ -15,22 +15,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/configure-pages@v5
+      - name: Site size
+        run: du -sh site
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      # Pages refuses the full 600 MB site, so satellite level 8 stays out of the published copy
-      - name: Assemble the published site
-        run: |
-          cp -r site _site
-          rm -f _site/data/lay/sat2/p8_*.webp
-          du -sh _site
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
