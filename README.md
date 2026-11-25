@@ -1,11 +1,12 @@
-# LayerMap
+# Layermap
 
 A layered world colour map in plate carrée projection. Start from the whole world and **crack** it into continents, countries, regions and subdivisions, going as fine as US census tracts. You can **delete** pieces or **combine** them, then **colour** and label the result. The map can sit on top of satellite, elevation and settlement layers.
 
-The source now uses the **LayerMap** name. The existing hosted version runs as a claude.ai artifact and still uses its earlier **Crackmap** title until that artifact is updated:
-https://claude.ai/artifact/TsBBWPsStTmjYgDdZNHjHz
+**Try it:** https://alejandrozu.github.io/layermap/ (GitHub Pages, built from `site/` on every push to `main`).
 
-LayerMap continues to open earlier Crackmap JSON files and recover existing local maps and preferences. New exports and browser saves use the LayerMap name.
+A second hosted version runs as a claude.ai artifact. It adds Save & share links and the sharpest satellite imagery.
+
+Layermap still opens map files saved under its earlier name, Crackmap, and picks up maps and preferences saved in the browser by the old version. New exports and browser saves use the Layermap name.
 
 ## Features
 
@@ -52,10 +53,17 @@ Everything except **Save & share** works locally. Saving uses the claude.ai arti
 
 **Satellite detail:**
 
-- Zoom levels 2–6 are in this repo.
-- Levels 7–10 (the sharp close-up imagery, about 960 MB) are stored as artifact assets and are not checked in.
-- Without them the map falls back to level 6.
-- `scripts/range_server.py` serves a local copy of those packs if you rebuild them with `scripts/s2sat.py`.
+| Level | Resolution | Where | In this repo / on Pages |
+|---|---|---|---|
+| 2–6 | down to ~1 km | everywhere | yes |
+| 7 | ~500 m | all land | yes |
+| 8 | ~250 m | where people live | yes |
+| 9 | ~120 m | populated regions | claude.ai version only |
+| 10 | ~60 m | big metro areas | claude.ai version only |
+
+- Levels 9–10 (about 575 MB) are left out to keep the Pages site under GitHub's 1 GB limit.
+- The app checks at load time which levels the host actually has, and zooms the imagery only as far as those go.
+- `scripts/range_server.py` serves local copies of levels 9–10 if you rebuild them with `scripts/s2sat.py`.
 
 ## Data sources and licences
 
